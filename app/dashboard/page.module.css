@@ -1,0 +1,196 @@
+.integractionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.interactionCard {
+  padding: 1.25rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem; 
+  margin-bottom: 0;
+  color: var(--foreground);
+  line-height: 1.5;   
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease;
+}
+
+.interactionCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--foreground);
+}
+
+.noteDate {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.container {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 1024px; 
+  margin: 0 auto;   
+}
+
+.header {
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-family: serif;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--foreground);
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  font-style: italic;
+  opacity: 0.7; 
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr; 
+  gap: 3rem;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.sectionTitle {
+  font-family: serif;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.personCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.personCard:hover {
+  border-color: var(--foreground); 
+}
+
+.personName {
+  font-family: serif;
+  font-size: 1.125rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scoreContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.scoreLabel {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.statusDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.dotGreen { background-color: var(--color-success); }
+.dotYellow { background-color: var(--color-warning); }
+.dotRed { background-color: var(--foreground); }
+
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border-radius: 999px;
+  background-color: var(--card-bg);
+  border: none;
+  color: var(--foreground);
+  font-size: 0.875rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--foreground);
+  color: var(--background); 
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.addButton:hover {
+  transform: rotate(90deg);
+}
+
+.linkViewAll {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  color: inherit;
+  text-decoration: none;
+}
+.linkViewAll:hover {
+  opacity: 1;
+}
+
+.emptyState {
+  padding: 2rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 1.5rem;
+  text-align: center;
+  opacity: 0.5;
+  font-style: italic;
+  font-size: 0.875rem;
+}
+

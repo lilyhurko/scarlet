@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true); // Перемикач: Вхід чи Реєстрація
+  const [isLogin, setIsLogin] = useState(true); 
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,11 +30,9 @@ export default function AuthPage() {
       }
 
       if (isLogin) {
-        // Успішний вхід -> зберігаємо ім'я і йдемо далі
         localStorage.setItem("scarletUser", data.name);
         router.push("/dashboard");
       } else {
-        // Успішна реєстрація -> перемикаємось на логін
         setIsLogin(true);
         setError("Account created! Please log in.");
         setFormData({ name: "", email: "", password: "" });

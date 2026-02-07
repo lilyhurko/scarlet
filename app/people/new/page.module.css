@@ -1,0 +1,174 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--background);
+  padding: 1.5rem;
+  font-family: sans-serif;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+  opacity: 0.6;
+  text-decoration: none;
+  margin-bottom: 2.5rem;
+  transition: opacity 0.2s;
+  width: fit-content;
+}
+
+.backLink:hover {
+  opacity: 1;
+}
+
+.backText {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.headerWrapper {
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.iconCircle {
+  width: 5rem;
+  height: 5rem;
+  background-color: var(--card-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  border: 1px solid var(--border-color);
+  color: var(--foreground);
+}
+
+.title {
+  font-size: 1.875rem;
+  font-family: serif;
+  font-weight: bold;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--foreground);
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.form {
+  max-width: 28rem; 
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.65rem; 
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--foreground);
+  opacity: 0.5;
+  font-weight: bold;
+  margin-left: 1rem;
+}
+
+.input {
+  width: 100%;
+  padding: 1.25rem;
+  border-radius: 1.5rem; 
+  background-color: var(--card-bg); 
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-family: serif;
+  font-size: 1.125rem;
+  transition: box-shadow 0.2s;
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px var(--foreground); 
+}
+
+.input::placeholder {
+  color: var(--foreground);
+  opacity: 0.3;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 0.75rem;
+}
+
+.relationBtn {
+  padding: 0.75rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: transparent;
+}
+
+.btnActive {
+  background-color: var(--foreground);
+  color: var(--background);
+  border-color: var(--foreground);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.btnInactive {
+  color: var(--foreground);
+  opacity: 0.5;
+  border-color: var(--border-color);
+}
+
+.btnInactive:hover {
+  opacity: 1;
+  border-color: var(--foreground);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 1.25rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border-radius: 9999px;
+  font-weight: bold;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+  transition: transform 0.2s;
+}
+
+.submitBtn:hover {
+  transform: scale(1.02);
+  filter: brightness(1.1);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
