@@ -1,0 +1,174 @@
+.container {
+  min-height: 100vh;
+  background-color: var(--background);
+  font-family: sans-serif;
+  padding: 2rem;
+}
+
+.mainContent {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.backLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+  opacity: 0.5;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+  transition: opacity 0.2s;
+}
+.backLink:hover { opacity: 1; }
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.avatarCircle {
+  width: 6rem;
+  height: 6rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  
+  font-family: serif;
+  font-size: 2.5rem;
+  color: var(--foreground);
+  font-weight: bold;
+}
+
+.title {
+  font-family: serif;
+  font-size: 2rem;
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.emailText {
+  color: var(--foreground);
+  opacity: 0.5;
+  font-size: 0.9rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: rgba(255,255,255,0.4);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+  color: var(--foreground);
+  opacity: 0.6;
+  margin-left: 0.5rem;
+}
+
+.input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1rem;
+  background-color: var(--background);
+  border: 1px solid transparent;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-family: serif;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--foreground);
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+}
+
+.input:disabled {
+  opacity: 0.7;
+  background-color: transparent;
+  border: 1px dashed var(--border-color);
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.saveButton {
+  flex: 1;
+  padding: 1rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.saveButton:hover { transform: scale(1.02); }
+
+.logoutButton {
+  flex: 1;
+  padding: 1rem;
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--foreground);
+  border-radius: 999px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.logoutButton:hover { background-color: rgba(139,0,0,0.05); }
+
+.dangerZone {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.deleteButton {
+  color: #dc2626; 
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 auto;
+}
+.deleteButton:hover { opacity: 1; text-decoration: underline; }
