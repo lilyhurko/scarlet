@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Search, Plus, Flag } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import styles from "./page.module.css"; 
+import styles from "./page.module.css";
 
 const PersonCard = ({ person }) => {
   const getScoreStyle = (score) => {
@@ -16,16 +16,14 @@ const PersonCard = ({ person }) => {
     <div className={styles.personCard}>
       <div className={styles.personName}>
         <span>{person.name}</span>
-        {person.vibeScore > 50 && (
-          <Flag size={14} fill="currentColor" />
-        )}
+        {person.vibeScore > 50 && <Flag size={14} fill="currentColor" />}
       </div>
-      
+
       <div className={styles.scoreContainer}>
-        <span className={styles.scoreLabel}>
-          {person.vibeScore} score
-        </span>
-        <div className={`${styles.statusDot} ${getScoreStyle(person.vibeScore)}`} />
+        <span className={styles.scoreLabel}>{person.vibeScore} score</span>
+        <div
+          className={`${styles.statusDot} ${getScoreStyle(person.vibeScore)}`}
+        />
       </div>
     </div>
   );
@@ -35,21 +33,28 @@ export default function DashboardPage() {
   const [people, setPeople] = useState([]);
   const [userName, setUserName] = useState("User");
   const [recentInteractions, setRecentInteractions] = useState([]);
+  
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const storedName = localStorage.getItem("scarletUser");
     if (storedName) setUserName(storedName);
 
     fetch("/api/people")
-      .then((res) => res.ok ? res.json() : [])
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => setPeople(data || []))
       .catch((err) => console.log("API not ready"));
 
     fetch("/api/interactions")
-      .then((res) => res.ok ? res.json() : [])
+      .then((res) => (res.ok ? res.json() : []))
       .then((data) => setRecentInteractions(data || []))
       .catch((err) => console.log("API not ready"));
   }, []);
+
+  
+  const filteredPeople = people.filter((person) => 
+    person.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className={styles.container}>
@@ -58,20 +63,27 @@ export default function DashboardPage() {
       <main>
         <div className={styles.header}>
           <h1 className={styles.title}>Hello, {userName}!</h1>
-          <p className={styles.subtitle}>Here’s your vibe summary for today 🖤</p>
+          <p className={styles.subtitle}>
+            Here’s your vibe summary for today 🖤
+          </p>
         </div>
 
         <div className={styles.grid}>
-          {/* Section: People */}
           <section>
             <h2 className={styles.sectionTitle}>People overview</h2>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              {people.length === 0 ? (
-                <div className={styles.emptyState}>No people tracked yet.</div>
+            <div style={{ marginBottom: "1.5rem" }}>
+              {filteredPeople.length === 0 ? (
+                <div className={styles.emptyState}>
+                  {people.length === 0 ? "No people tracked yet." : "No matches found."}
+                </div>
               ) : (
-                people.map((p) => (
-                  <Link key={p._id} href={`/people/${p._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                filteredPeople.map((p) => (
+                  <Link
+                    key={p._id}
+                    href={`/people/${p._id}`}
+                    style={{ textDecoration: "none", color: "inherit" }}
+                  >
                     <PersonCard person={p} />
                   </Link>
                 ))
@@ -84,6 +96,8 @@ export default function DashboardPage() {
                   type="text"
                   placeholder="Search people..."
                   className={styles.input}
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
                 />
                 <Search className={styles.searchIcon} size={20} />
               </div>
@@ -93,7 +107,6 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* Section: Interactions */}
           <section>
             <div className={styles.sectionTitle}>
               Recent Interactions
@@ -109,12 +122,16 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 recentInteractions
-                .slice(0, 5)
-                .map((int) => (
-                  <div key={int._id} className={styles.personCard}>
-                    <p>{int.notes}</p>
-                  </div>
-                ))
+                  .filter((int) => int.notes && int.notes.trim().length > 0)
+                  .slice(0, 5)
+                  .map((int) => (
+                    <div
+                      key={int._id}
+                      className={styles.interactionCard || styles.personCard}
+                    >
+                      <p>{int.notes}</p>
+                    </div>
+                  ))
               )}
             </div>
           </section>

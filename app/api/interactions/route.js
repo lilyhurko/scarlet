@@ -9,14 +9,17 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const personId = searchParams.get("personId");
     const query = personId ? { personId } : {};
-    const limit = personId ? 0 : 10;
+
+    const limit = personId ? 0 : 50; 
 
     const interactions = await Interaction.find(query)
+      .populate("personId") 
       .sort({ date: -1 })
-      .limit(limit);
+      .limit(limit); 
 
     return NextResponse.json(interactions);
   } catch (error) {
+    console.error("API Error:", error); 
     return NextResponse.json(
       { error: "Failed to fetch interactions" },
       { status: 500 },
