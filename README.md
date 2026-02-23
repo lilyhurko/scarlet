@@ -61,16 +61,28 @@ Scarlet is a full-stack behavioral analytics web application designed to help us
 ```bash
 git clone https://github.com/lilyhurko/scarlet.git
 cd scarlet
+```
 
 ### 2. Install dependencies
 ```bash
 npm install
-
+```
 ### 3. Configure environment variables
 Create a .env.local file in the root directory:
 ```bash
 MONGODB_URI=your_mongodb_connection_string
-
+```
 ### 4. Run development server
 ```bash
 npm run dev
+```
+Open in browser:
+http://localhost:3000
+3000
+
+## 🔮 Future Improvements
+- Advanced behavioral trend visualization
+- Exportable analytics reports
+- Role-based access control
+- AI-assisted pattern detection
+
