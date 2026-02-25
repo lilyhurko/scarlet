@@ -2,6 +2,7 @@
 
 Scarlet is a full-stack behavioral analytics web application designed to help users objectively track interpersonal interactions, detect red flags, and monitor a dynamic relationship health score.
 
+Live-demo: https://scarlet-fswd.vercel.app/
 ---
 
 ## ✨ Features
