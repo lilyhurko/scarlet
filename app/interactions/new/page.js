@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, AlertTriangle, Heart, ThumbsDown, Check, MessageCircle,
   Clock, EyeOff, Zap, DollarSign, UserMinus, ShieldAlert, Ghost,
-  TrendingUp, Activity, Lock, Smile, Flag, Ban, Sparkles, Upload
+  TrendingUp, Activity, Lock, Smile, Flag, Ban, Sparkles, Upload, X
 } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -51,7 +51,10 @@ export default function NewInteractionPage() {
   const [scoreChange, setScoreChange] = useState(0);
   
   const [loading, setLoading] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false); // Стан для ШІ
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const [previewImage, setPreviewImage] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const storedEmail = localStorage.getItem("scarletEmail");
@@ -72,11 +75,25 @@ export default function NewInteractionPage() {
     );
   };
 
+  const handleRemoveImage = () => {
+    setPreviewImage(null);
+    setUploadProgress(0);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewImage(objectUrl);
+
     setIsAnalyzing(true);
+    setUploadProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => (prev >= 95 ? 95 : prev + Math.floor(Math.random() * 10) + 1));
+    }, 500);
 
     try {
       const reader = new FileReader();
@@ -94,18 +111,24 @@ export default function NewInteractionPage() {
 
         const aiData = await response.json();
 
+        clearInterval(progressInterval);
+        setUploadProgress(100);
+
         if (aiData.observation) setNotes(aiData.observation);
         if (aiData.tags) setSelectedTags(aiData.tags);
         if (aiData.suggestedScoreChange) setScoreChange(aiData.suggestedScoreChange);
 
-        alert("AI Analysis Complete! Review the auto-filled data.");
+        setTimeout(() => {
+          alert("AI Analysis Complete! Review the auto-filled data.");
+          setIsAnalyzing(false);
+        }, 300);
       };
     } catch (error) {
       console.error(error);
-      alert("Oops! Something went wrong with the AI analysis.");
-    } finally {
+      clearInterval(progressInterval);
       setIsAnalyzing(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      alert("Oops! Something went wrong with the AI analysis.");
+      handleRemoveImage(); 
     }
   };
 
@@ -166,13 +189,59 @@ export default function NewInteractionPage() {
             </select>
           </div>
 
-          <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/20 flex flex-col items-center justify-center gap-4 text-center">
-            <Sparkles className="text-scarlet" size={32} />
-            <div>
-              <h3 className="font-serif text-scarlet font-bold text-xl">Let AI analyze the chat</h3>
-              <p className="text-sm text-scarlet/60 mt-1">Upload a screenshot and AI will automatically find red/green flags and write an observation.</p>
-            </div>
-            
+          <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/20 flex flex-col items-center justify-center gap-4 text-center min-h-[200px]">
+            {previewImage ? (
+              <div className="relative w-full max-w-xs mx-auto">
+                <img 
+                  src={previewImage} 
+                  alt="Uploaded preview" 
+                  className="w-full rounded-2xl object-cover shadow-md aspect-[9/16] max-h-64" 
+                />
+                
+                {!isAnalyzing && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full p-1.5 shadow-lg hover:bg-red-700 transition-all hover:scale-110"
+                    title="Remove image"
+                  >
+                    <X size={16} strokeWidth={3} />
+                  </button>
+                )}
+
+                {isAnalyzing && (
+                  <div className="absolute inset-0 bg-[#4A0E17]/60 rounded-2xl flex flex-col items-center justify-center text-cream backdrop-blur-sm transition-all">
+                    <Sparkles className="animate-pulse mb-3 text-[#EBDBCB]" size={32} />
+                    <span className="font-bold tracking-widest text-xs uppercase mb-1">Analyzing Vibe</span>
+                    <span className="text-3xl font-serif font-bold">{uploadProgress}%</span>
+                    
+                    <div className="w-2/3 h-1.5 bg-black/30 rounded-full mt-3 overflow-hidden">
+                      <div 
+                        className="h-full bg-cream transition-all duration-300 ease-out rounded-full"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Sparkles className="text-scarlet" size={32} />
+                <div>
+                  <h3 className="font-serif text-scarlet font-bold text-xl">Let AI analyze the chat</h3>
+                  <p className="text-sm text-scarlet/60 mt-1">Upload a screenshot and AI will automatically find red/green flags and write an observation.</p>
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current.click()}
+                  className="mt-2 flex items-center gap-2 px-6 py-3 bg-scarlet text-cream rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all"
+                >
+                  <Upload size={16} /> Upload Screenshot
+                </button>
+              </>
+            )}
+
             <input 
               type="file" 
               accept="image/*" 
@@ -180,19 +249,6 @@ export default function NewInteractionPage() {
               ref={fileInputRef} 
               onChange={handleImageUpload} 
             />
-            
-            <button
-              type="button"
-              onClick={() => fileInputRef.current.click()}
-              disabled={isAnalyzing}
-              className="mt-2 flex items-center gap-2 px-6 py-3 bg-scarlet text-cream rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all disabled:opacity-50"
-            >
-              {isAnalyzing ? (
-                <><Sparkles className="animate-pulse" size={16} /> Analyzing vibe...</>
-              ) : (
-                <><Upload size={16} /> Upload Screenshot</>
-              )}
-            </button>
           </div>
 
           <div className="space-y-6">
