@@ -8,26 +8,26 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const personId = searchParams.get("personId");
-    
-    const email = searchParams.get("email"); 
+
+    const email = searchParams.get("email");
 
     let query = {};
 
     if (personId) {
       query.personId = personId;
     } else if (email) {
-      const myPeople = await Person.find({ ownerEmail: email }).select('_id');
-      const myPeopleIds = myPeople.map(p => p._id);
-      
+      const myPeople = await Person.find({ ownerEmail: email }).select("_id");
+      const myPeopleIds = myPeople.map((p) => p._id);
+
       query.personId = { $in: myPeopleIds };
     } else {
       return NextResponse.json([]);
     }
 
-    const limit = personId ? 0 : 50; 
+    const limit = personId ? 0 : 50;
 
     const interactions = await Interaction.find(query)
-      .populate("personId") 
+      .populate("personId")
       .sort({ date: -1 })
       .limit(limit);
 
@@ -44,29 +44,39 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     await connectDB();
-    const { personId, note, tags } = await req.json();
+    
+    const { personId, notes, tags, scoreChange } = await req.json();
+
+    const redFlags = ["gaslighting", "love bombing", "narcissistic traits", "anger issues", "controlling", "future faking", "negging", "victim complex", "disrespects boundaries", "secretive / shady"];
+    const greenFlags = ["consistent", "respects boundaries", "supportive", "good listener", "takes accountability", "open communicator", "emotional intelligence", "clear intentions", "makes you laugh", "reliable"];
+
+    const formattedTags = (tags || []).map((tagString) => {
+      const lowerTag = tagString.toLowerCase();
+      let tagColor = "yellow"; 
+      
+      if (redFlags.includes(lowerTag)) tagColor = "red";
+      if (greenFlags.includes(lowerTag)) tagColor = "green";
+      
+      return {
+        label: tagString,
+        type: tagColor
+      };
+    });
 
     const newInteraction = await Interaction.create({
       personId,
-      notes: note,
-      tags,
+      notes,
+      tags: formattedTags,
     });
 
-    let scoreImpact = 0;
-    if (tags && Array.isArray(tags)) {
-      tags.forEach((tag) => {
-        if (tag.flagType === "red") scoreImpact += 15;
-        if (tag.flagType === "yellow") scoreImpact += 5;
-        if (tag.flagType === "green") scoreImpact -= 10;
-      });
-    }
-
+    const impact = Number(scoreChange) || 0;
     await Person.findByIdAndUpdate(personId, {
-      $inc: { vibeScore: scoreImpact },
+      $inc: { vibeScore: impact },
     });
 
     return NextResponse.json(newInteraction, { status: 201 });
   } catch (error) {
+    console.error("Save Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

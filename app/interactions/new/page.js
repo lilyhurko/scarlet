@@ -1,13 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft, AlertTriangle, Heart, ThumbsDown, Check, MessageCircle,
   Clock, EyeOff, Zap, DollarSign, UserMinus, ShieldAlert, Ghost,
-  TrendingUp, Activity, Lock, Smile, Flag, Ban,
+  TrendingUp, Activity, Lock, Smile, Flag, Ban, Sparkles, Upload
 } from "lucide-react";
 import Link from "next/link";
-import styles from "./page.module.css";
+import Navbar from "@/components/Navbar";
+import styles from "./page.module.css"; 
 
 const TAGS_PRESETS = [
   { label: "Gaslighting", type: "red", icon: AlertTriangle, category: "manipulation" },
@@ -40,178 +41,240 @@ const TAGS_PRESETS = [
 ];
 
 export default function NewInteractionPage() {
+  const router = useRouter();
+  const fileInputRef = useRef(null);
+
   const [people, setPeople] = useState([]);
   const [selectedPerson, setSelectedPerson] = useState("");
-  const [note, setNote] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
+  const [notes, setNotes] = useState("");
+  const [scoreChange, setScoreChange] = useState(0);
+  
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [isAnalyzing, setIsAnalyzing] = useState(false); // Стан для ШІ
 
-useEffect(() => {
+  useEffect(() => {
     const storedEmail = localStorage.getItem("scarletEmail");
     if (storedEmail) {
       fetch(`/api/people?email=${storedEmail}`)
         .then((res) => res.json())
         .then((data) => {
           setPeople(data || []);
-          if (data && data.length > 0) {
-            setSelectedPerson(data[0]._id);
-          }
+          if (data && data.length > 0) setSelectedPerson(data[0]._id);
         })
         .catch((err) => console.error("Error loading people:", err));
     }
   }, []);
 
   const toggleTag = (tag) => {
-    const exists = selectedTags.find((t) => t.label === tag.label);
-    if (exists) {
-      setSelectedTags(selectedTags.filter((t) => t.label !== tag.label));
-    } else {
-      setSelectedTags([...selectedTags, { label: tag.label, flagType: tag.type }]);
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsAnalyzing(true);
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = async () => {
+        const base64 = reader.result;
+
+        const response = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: base64 }),
+        });
+
+        if (!response.ok) throw new Error("AI failed to analyze");
+
+        const aiData = await response.json();
+
+        if (aiData.observation) setNotes(aiData.observation);
+        if (aiData.tags) setSelectedTags(aiData.tags);
+        if (aiData.suggestedScoreChange) setScoreChange(aiData.suggestedScoreChange);
+
+        alert("AI Analysis Complete! Review the auto-filled data.");
+      };
+    } catch (error) {
+      console.error(error);
+      alert("Oops! Something went wrong with the AI analysis.");
+    } finally {
+      setIsAnalyzing(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedPerson) return;
-    setLoading(true);
+    if (!selectedPerson) return alert("Please select a person first!");
 
+    setLoading(true);
     try {
-      await fetch("/api/interactions", {
+      const res = await fetch("/api/interactions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           personId: selectedPerson,
-          note,
           tags: selectedTags,
+          notes,
+          scoreChange: Number(scoreChange),
         }),
       });
 
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Error saving interaction:", error);
+      if (res.ok) {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const renderTagButton = (tag) => {
-    const isSelected = selectedTags.some((t) => t.label === tag.label);
-    const Icon = tag.icon;
-
-    let buttonClass = styles.tagButton;
-
-    if (!isSelected) {
-      buttonClass += ` ${styles.tagInactive}`;
-    } else {
-      if (tag.type === "red") buttonClass += ` ${styles.tagRed}`;
-      if (tag.type === "green") buttonClass += ` ${styles.tagGreen}`;
-      if (tag.type === "yellow") buttonClass += ` ${styles.tagYellow}`;
-    }
-
-    return (
-      <button
-        key={tag.label}
-        type="button"
-        onClick={() => toggleTag(tag)}
-        className={buttonClass}
-      >
-        <Icon size={14} />
-        {tag.label}
-      </button>
-    );
-  };
-
   return (
-    <main className={styles.container}>
-      <Link href="/dashboard" className={styles.backLink}>
-        <ArrowLeft size={20} />
-        <span className={styles.backText}>Back</span>
-      </Link>
+    <div className="min-h-screen bg-cream font-sans">
+      <Navbar />
 
-      <h1 className={styles.pageTitle}>
-        New Check-in
-      </h1>
+      <main className="p-8 max-w-2xl mx-auto">
+        <Link href="/dashboard" className="flex items-center gap-2 text-dark/50 hover:text-dark font-bold text-xs uppercase tracking-widest mb-8">
+          <ArrowLeft size={16} /> Back
+        </Link>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>
-            Subject
-          </label>
-          <div className={styles.selectWrapper}>
+        <h1 className="text-4xl font-serif font-bold text-scarlet mb-8">New Check-in</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase tracking-widest text-scarlet/60">Subject</label>
             <select
               value={selectedPerson}
               onChange={(e) => setSelectedPerson(e.target.value)}
-              className={styles.select}
+              className="w-full p-4 rounded-2xl bg-[#EBDBCB]/40 border border-scarlet/20 text-scarlet font-serif text-lg outline-none focus:border-scarlet/50 appearance-none"
             >
-              {people.length === 0 && <option>No people found...</option>}
-              {people.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
-                </option>
-              ))}
+              {people.length === 0 ? (
+                <option value="">No people found...</option>
+              ) : (
+                people.map((p) => (
+                  <option key={p._id} value={p._id}>{p.name}</option>
+                ))
+              )}
             </select>
-            <div className={styles.selectArrow}>▼</div>
           </div>
-          
-          {people.length === 0 && (
-            <p className="text-xs text-red-500 mt-2"> 
-              <Link href="/people/new" className="underline font-bold">
-                Add a person
-              </Link>{" "}
-              first!
-            </p>
-          )}
-        </div>
-        
-        <div className={styles.inputGroup}>
-          <label className={styles.label} style={{ color: 'var(--foreground)' }}>
-            Red Flags (Danger)
-          </label>
-          <div className={styles.tagsContainer}>
-            {TAGS_PRESETS.filter((t) => t.type === "red").map((tag) => renderTagButton(tag))}
+
+          <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/20 flex flex-col items-center justify-center gap-4 text-center">
+            <Sparkles className="text-scarlet" size={32} />
+            <div>
+              <h3 className="font-serif text-scarlet font-bold text-xl">Let AI analyze the chat</h3>
+              <p className="text-sm text-scarlet/60 mt-1">Upload a screenshot and AI will automatically find red/green flags and write an observation.</p>
+            </div>
+            
+            <input 
+              type="file" 
+              accept="image/*" 
+              hidden 
+              ref={fileInputRef} 
+              onChange={handleImageUpload} 
+            />
+            
+            <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              disabled={isAnalyzing}
+              className="mt-2 flex items-center gap-2 px-6 py-3 bg-scarlet text-cream rounded-full font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-all disabled:opacity-50"
+            >
+              {isAnalyzing ? (
+                <><Sparkles className="animate-pulse" size={16} /> Analyzing vibe...</>
+              ) : (
+                <><Upload size={16} /> Upload Screenshot</>
+              )}
+            </button>
           </div>
-        </div>
 
-        <div className={styles.inputGroup}>
-          <label className={styles.label} style={{ color: '#ca8a04' }}> 
-            Warning Signs
-          </label>
-          <div className={styles.tagsContainer}>
-            {TAGS_PRESETS.filter((t) => t.type === "yellow").map((tag) => renderTagButton(tag))}
+          <div className="space-y-6">
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-scarlet/60 mb-3 block">Red Flags (Danger)</label>
+              <div className="flex flex-wrap gap-2">
+                {TAGS_PRESETS.filter(t => t.type === "red").map((tagObj) => (
+                  <button 
+                    key={tagObj.label} 
+                    type="button" 
+                    onClick={() => toggleTag(tagObj.label)} 
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase transition-all ${selectedTags.includes(tagObj.label) ? "bg-[#8B0000] text-cream" : "bg-[#8B0000]/10 text-[#8B0000] hover:bg-[#8B0000]/20"}`}
+                  >
+                    <tagObj.icon size={14} /> {tagObj.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-[#B8860B]/80 mb-3 block">Warning Signs</label>
+              <div className="flex flex-wrap gap-2">
+                {TAGS_PRESETS.filter(t => t.type === "yellow").map((tagObj) => (
+                  <button 
+                    key={tagObj.label} 
+                    type="button" 
+                    onClick={() => toggleTag(tagObj.label)} 
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase transition-all ${selectedTags.includes(tagObj.label) ? "bg-[#B8860B] text-cream" : "bg-[#B8860B]/10 text-[#B8860B] hover:bg-[#B8860B]/20"}`}
+                  >
+                    <tagObj.icon size={14} /> {tagObj.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase tracking-widest text-[#2E8B57]/80 mb-3 block">Green Flags</label>
+              <div className="flex flex-wrap gap-2">
+                {TAGS_PRESETS.filter(t => t.type === "green").map((tagObj) => (
+                  <button 
+                    key={tagObj.label} 
+                    type="button" 
+                    onClick={() => toggleTag(tagObj.label)} 
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase transition-all ${selectedTags.includes(tagObj.label) ? "bg-[#2E8B57] text-cream" : "bg-[#2E8B57]/10 text-[#2E8B57] hover:bg-[#2E8B57]/20"}`}
+                  >
+                    <tagObj.icon size={14} /> {tagObj.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-scarlet/60">Observation Notes</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="What happened? (Or let AI fill this...)"
+                className="w-full p-4 rounded-2xl bg-[#EBDBCB]/40 border border-scarlet/20 text-dark placeholder:text-dark/30 outline-none focus:border-scarlet/50 h-32 resize-none"
+              />
+            </div>
 
-        <div className={styles.inputGroup}>
-          <label className={styles.label} style={{ color: '#15803d' }}> 
-            Green Flags
-          </label>
-          <div className={styles.tagsContainer}>
-            {TAGS_PRESETS.filter((t) => t.type === "green").map((tag) => renderTagButton(tag))}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest text-scarlet/60">Vibe Score Impact (-100 to +100)</label>
+              <input
+                type="number"
+                value={scoreChange}
+                onChange={(e) => setScoreChange(e.target.value)}
+                className="w-full p-4 rounded-2xl bg-[#EBDBCB]/40 border border-scarlet/20 text-scarlet font-serif text-xl outline-none focus:border-scarlet/50"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className={styles.inputGroup}>
-          <label className={styles.label}>
-            Observation
-          </label>
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Trust your gut. What happened?"
-            className={styles.textarea}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading || people.length === 0}
-          className={styles.submitButton}
-        >
-          {loading ? "Analyzing Data..." : "Save Analysis"}
-        </button>
-      </form>
-    </main>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 rounded-full bg-scarlet text-cream font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-50 mt-4"
+          >
+            {loading ? "Saving..." : "Save Interaction"}
+          </button>
+        </form>
+      </main>
+    </div>
   );
 }
