@@ -15,11 +15,19 @@ export default function AddPersonPage() {
     e.preventDefault();
     setLoading(true);
 
+    const userEmail = localStorage.getItem("scarletEmail");
+
+    if (!userEmail) {
+      alert("Please log in first!");
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch("/api/people", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, relation }),
+        body: JSON.stringify({ name, relation, ownerEmail: userEmail }),
       });
 
       if (res.ok) {
@@ -79,11 +87,7 @@ export default function AddPersonPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={styles.submitBtn}
-          >
+          <button type="submit" disabled={loading} className={styles.submitBtn}>
             {loading ? "Adding to Records..." : "Initialize Analysis"}
           </button>
         </form>

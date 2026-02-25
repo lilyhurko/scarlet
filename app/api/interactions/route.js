@@ -8,18 +8,32 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const personId = searchParams.get("personId");
-    const query = personId ? { personId } : {};
+    
+    const email = searchParams.get("email"); 
+
+    let query = {};
+
+    if (personId) {
+      query.personId = personId;
+    } else if (email) {
+      const myPeople = await Person.find({ ownerEmail: email }).select('_id');
+      const myPeopleIds = myPeople.map(p => p._id);
+      
+      query.personId = { $in: myPeopleIds };
+    } else {
+      return NextResponse.json([]);
+    }
 
     const limit = personId ? 0 : 50; 
 
     const interactions = await Interaction.find(query)
       .populate("personId") 
       .sort({ date: -1 })
-      .limit(limit); 
+      .limit(limit);
 
     return NextResponse.json(interactions);
   } catch (error) {
-    console.error("API Error:", error); 
+    console.error("API Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch interactions" },
       { status: 500 },

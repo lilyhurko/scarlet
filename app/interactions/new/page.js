@@ -47,15 +47,19 @@ export default function NewInteractionPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetch("/api/people")
-      .then((res) => res.json())
-      .then((data) => {
-        setPeople(data || []);
-        if (data && data.length > 0) {
-          setSelectedPerson(data[0]._id);
-        }
-      });
+useEffect(() => {
+    const storedEmail = localStorage.getItem("scarletEmail");
+    if (storedEmail) {
+      fetch(`/api/people?email=${storedEmail}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setPeople(data || []);
+          if (data && data.length > 0) {
+            setSelectedPerson(data[0]._id);
+          }
+        })
+        .catch((err) => console.error("Error loading people:", err));
+    }
   }, []);
 
   const toggleTag = (tag) => {

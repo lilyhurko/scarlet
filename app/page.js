@@ -31,6 +31,7 @@ export default function AuthPage() {
 
       if (isLogin) {
         localStorage.setItem("scarletUser", data.name);
+        localStorage.setItem("scarletEmail", formData.email);
         router.push("/dashboard");
       } else {
         setIsLogin(true);

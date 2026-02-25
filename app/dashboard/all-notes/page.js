@@ -10,27 +10,31 @@ export default function AllNotesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    fetch("/api/interactions")
-      .then((res) => res.json())
-      .then((data) => {
-        const sorted = (data || []).sort((a, b) => new Date(b.date) - new Date(a.date));
-        setAllNotes(sorted);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Failed to load notes", err);
-        setLoading(false);
-      });
+useEffect(() => {
+    const storedEmail = localStorage.getItem("scarletEmail");
+
+    if (storedEmail) {
+      fetch(`/api/interactions?email=${storedEmail}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const sorted = (data || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+          setAllNotes(sorted);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Failed to load notes", err);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false); 
+    }
   }, []);
 
 
   const filteredNotes = allNotes.filter((note) => {
     const textMatch = note.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-    // Додаємо безпечну перевірку (?.), бо note.tags може бути null
     const tagMatch = note.tags?.some(tag => tag.label.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // Додатково: можна шукати ще й по імені людини!
     const nameMatch = note.personId?.name?.toLowerCase().includes(searchTerm.toLowerCase());
     
     return textMatch || tagMatch || nameMatch;
@@ -80,14 +84,11 @@ export default function AllNotesPage() {
             filteredNotes.map((note) => (
               <div key={note._id} className={styles.card}>
                 
-                {/* 👇 ОСНОВНІ ЗМІНИ ТУТ 👇 */}
                 <div className={styles.cardHeader}>
-                    {/* Виводимо ім'я (використовуємо стилі, які ми додали раніше) */}
                     <span className={styles.personName}>
                       {note.personId?.name || "Unknown Person"}
                     </span>
                     
-                    {/* Дата тепер справа і менша */}
                     <span className={styles.date}>
                       {new Date(note.date).toLocaleDateString()}
                     </span>

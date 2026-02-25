@@ -36,21 +36,23 @@ export default function DashboardPage() {
   
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
+useEffect(() => {
     const storedName = localStorage.getItem("scarletUser");
+    const storedEmail = localStorage.getItem("scarletEmail"); 
     if (storedName) setUserName(storedName);
 
-    fetch("/api/people")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setPeople(data || []))
-      .catch((err) => console.log("API not ready"));
+    if (storedEmail) {
+      fetch(`/api/people?email=${storedEmail}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => setPeople(data || []))
+        .catch((err) => console.log("API not ready"));
 
-    fetch("/api/interactions")
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => setRecentInteractions(data || []))
-      .catch((err) => console.log("API not ready"));
+      fetch(`/api/interactions?email=${storedEmail}`)
+        .then((res) => (res.ok ? res.json() : []))
+        .then((data) => setRecentInteractions(data || []))
+        .catch((err) => console.log("API not ready"));
+    }
   }, []);
-
   
   const filteredPeople = people.filter((person) => 
     person.name.toLowerCase().includes(searchTerm.toLowerCase())

@@ -11,42 +11,40 @@ export default function AnalyticsPage() {
   const [people, setPeople] = useState([]);
 
   useEffect(() => {
-    fetch("/api/people")
-      .then((res) => res.json())
-      .then((data) => setPeople(data || []));
+    const storedEmail = localStorage.getItem("scarletEmail");
+
+    if (storedEmail) {
+      fetch(`/api/people?email=${storedEmail}`)
+        .then((res) => res.json())
+        .then((data) => setPeople(data || []))
+        .catch((err) => console.error("Error fetching analytics:", err));
+    }
   }, []);
 
-  // --- ЛОГІКА ОБЧИСЛЕННЯ ---
-  
-  // Знаходимо найтоксичнішого (Max Score)
   const highestRisk = people.length > 0 
     ? people.reduce((prev, current) => (prev.vibeScore > current.vibeScore) ? prev : current)
     : null;
 
-  // Знаходимо "Зелений прапорець" (Найменший Score)
   const safestPerson = people.length > 0
     ? people.reduce((prev, current) => (prev.vibeScore < current.vibeScore) ? prev : current)
     : null;
 
-  // Середній рівень токсичності оточення
   const averageScore = people.length > 0
     ? Math.round(people.reduce((sum, p) => sum + p.vibeScore, 0) / people.length)
     : 0;
 
-  // Дані для кругової діаграми
   const pieData = [
     { name: 'Safe', value: people.filter(p => p.vibeScore <= 20).length },
     { name: 'Warning', value: people.filter(p => p.vibeScore > 20 && p.vibeScore <= 50).length },
     { name: 'Danger', value: people.filter(p => p.vibeScore > 50).length },
   ];
   
-  const COLORS = ['#15803d', '#eab308', '#8B0000']; // Green, Yellow, Scarlet
+  const COLORS = ['#15803d', '#eab308', '#8B0000']; 
 
-  // Функція кольору для стовпчиків
   const getBarColor = (score) => {
-    if (score > 50) return "#8B0000"; // Scarlet
-    if (score > 20) return "#eab308"; // Yellow
-    return "#15803d"; // Green
+    if (score > 50) return "#8B0000"; 
+    if (score > 20) return "#eab308"; 
+    return "#15803d"; 
   };
 
   return (
@@ -57,9 +55,7 @@ export default function AnalyticsPage() {
         <h1 className="text-4xl font-serif font-bold text-scarlet mb-2">Vibe Analytics</h1>
         <p className="text-scarlet/60 mb-10">Data visualization of your social circle.</p>
 
-        {/* --- STAT CARDS --- */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {/* Card 1: Toxic King/Queen */}
           <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/10">
             <div className="flex items-center gap-3 mb-2 text-scarlet/60 font-bold text-xs uppercase tracking-widest">
               <AlertTriangle size={16} /> Highest Risk
@@ -72,7 +68,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Card 2: Average */}
           <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/10">
             <div className="flex items-center gap-3 mb-2 text-scarlet/60 font-bold text-xs uppercase tracking-widest">
               <TrendingUp size={16} /> Average Vibe
@@ -85,7 +80,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          {/* Card 3: Safest */}
           <div className="bg-[#EBDBCB]/40 p-6 rounded-3xl border border-scarlet/10">
             <div className="flex items-center gap-3 mb-2 text-scarlet/60 font-bold text-xs uppercase tracking-widest">
               <ShieldCheck size={16} /> Safest Connection
@@ -99,10 +93,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* --- GRAPHS --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           
-          {/* Graph 1: Bar Chart */}
           <section className="bg-white/50 p-8 rounded-[40px] shadow-sm">
             <h2 className="text-xl font-serif font-bold text-scarlet mb-6">Toxicity Comparison</h2>
             <div className="h-64 w-full">
@@ -123,7 +115,6 @@ export default function AnalyticsPage() {
             </div>
           </section>
 
-          {/* Graph 2: Pie Chart */}
           <section className="bg-white/50 p-8 rounded-[40px] shadow-sm flex flex-col items-center">
             <h2 className="text-xl font-serif font-bold text-scarlet mb-6">Circle Distribution</h2>
             <div className="h-64 w-full">
