@@ -7,26 +7,25 @@ Live-demo: https://scarlet-fswd.vercel.app/
 
 ## ✨ Features
 
-- **Warning Score Algorithm (0–100)**  
-  Custom weighted scoring system that evaluates relationship dynamics based on positive and negative interaction tags.
+- **🤖 AI-Powered Analysis (Gemini AI)**
+  - **Chat Screenshot Analysis:** Upload a screenshot of a chat, and AI will automatically extract red/green flags and write an observation note.
+  - **Boundary Builder:** When toxic behavior is detected, AI suggests 3 ecological ways (Soft, Medium, Hard) to respond and protect your personal boundaries.
+  - **Pattern Detective:** Once enough interactions are logged, AI reads the history to identify behavioral patterns and provides a summary with a recommended status (Red, Yellow, or Green Flag).
 
-- **Interaction Logging System**  
-  Structured note tracking with categorized behavioral tags (e.g., Gaslighting, Supportive, Love Bombing).  
+- **Warning Score Algorithm (0–100)** Custom weighted scoring system that evaluates relationship dynamics based on positive and negative interaction tags.
+
+- **Interaction Logging System** Structured note tracking with categorized behavioral tags (e.g., Gaslighting, Supportive, Love Bombing).  
   Each interaction dynamically updates the overall score.
 
-- **Real-Time Search & Filtering**  
-  Instant filtering of users and archived notes by name, keyword, or tag.
+- **Real-Time Search & Filtering** Instant filtering of users and archived notes by name, keyword, or tag.
 
-- **Responsive UI (Mobile-First)**  
-  Fully optimized interface for desktop and mobile devices using CSS Modules.
+- **Responsive UI (Mobile-First)** Fully optimized interface for desktop and mobile devices using CSS Modules.
 
-- **User Profile Management (CRUD)**  
-  - Edit profile and bio  
+- **User Profile Management (CRUD)** - Edit profile and bio  
   - Manage tracked individuals  
   - Secure account deletion  
 
-- **Custom Design System ("Scarlet" UI)**  
-  Custom CSS variables, semantic styling, consistent spacing and layout structure.
+- **Custom Design System ("Scarlet" UI)** Custom CSS variables, semantic styling, consistent spacing and layout structure.
 
 ---
 
@@ -38,10 +37,11 @@ Live-demo: https://scarlet-fswd.vercel.app/
 - CSS Modules
 - Lucide React (icons)
 
-### Backend
+### Backend & AI
 - Next.js API Routes (serverless functions)
 - MongoDB
 - Mongoose (schema-based data modeling)
+- **Google Generative AI (Gemini 2.5 Flash)**
 
 ---
 
@@ -85,5 +85,4 @@ http://localhost:3000
 - Advanced behavioral trend visualization
 - Exportable analytics reports
 - Role-based access control
-- AI-assisted pattern detection
 
